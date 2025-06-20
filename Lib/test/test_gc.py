@@ -1521,18 +1521,16 @@ class PythonFinalizationTests(unittest.TestCase):
         # https://github.com/python/cpython/issues/135552
         code = textwrap.dedent("""
             class BaseNode:
-                next = None
-            
                 def __del__(self):
-                    BaseNode.next
+                    BaseNode.next = BaseNode.next.next
             
             
-            BaseNode.next = BaseNode()
-            val = BaseNode.next
-            for i in range(128):
-                val.next = BaseNode()
-                val = val.next
-            BaseNode.next = val
+            class Node(BaseNode):
+                pass
+            
+            
+            BaseNode.next = Node()
+            BaseNode.next.next = Node()
         """)
         assert_python_ok("-c", code)
 
